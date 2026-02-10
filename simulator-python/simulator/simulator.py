@@ -49,6 +49,12 @@ def emit_sensor_data(socket, payload):
     """Envía los datos por socket"""
     socket.emit("sensor-data", payload)
 
+def generate_value(sensor: dict) -> float:
+    """
+    Genera un valor aleatorio dentro del rango del sensor
+    """
+    return round(random.uniform(sensor["min"], sensor["max"]),2)
+
 @sio.event
 def connect():
     print("🟢 Simulador conectado al backend")
