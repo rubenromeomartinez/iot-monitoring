@@ -5,6 +5,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY simulator.py .
+COPY simulator ./simulator
 
-CMD ["python", "simulator.py"]
+CMD ["python", "-m","simulator.simulator"]

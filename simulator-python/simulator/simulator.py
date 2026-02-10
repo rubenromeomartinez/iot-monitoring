@@ -27,8 +27,27 @@ SENSORS = [
     }
 ]
 
+# =========================
+# LÓGICA TESTEABLE
+# =========================
+
 def generate_value(sensor):
+    """Genera un valor aleatorio dentro del rango del sensor"""
     return round(random.uniform(sensor["min"], sensor["max"]), 2)
+
+def build_payload(sensor):
+    """Construye el payload del sensor"""
+    return {
+        "sensorId": sensor["sensorId"],
+        "type": sensor["type"],
+        "value": generate_value(sensor),
+        "unit": sensor["unit"],
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+def emit_sensor_data(socket, payload):
+    """Envía los datos por socket"""
+    socket.emit("sensor-data", payload)
 
 @sio.event
 def connect():
@@ -38,22 +57,14 @@ def connect():
 def disconnect():
     print("🔴 Simulador desconectado")
 
-def run_simulation():
+def run_simulation(socket=sio, sensors=SENSORS):
     sio.connect(WS_URL)
 
     while True:
-        for sensor in SENSORS:
-            data = {
-                "sensorId": sensor["sensorId"],
-                "type": sensor["type"],
-                "value": generate_value(sensor),
-                "unit": sensor["unit"],
-                "timestamp": datetime.utcnow().isoformat()
-            }
-
-            sio.emit("sensor-data", data)
-            print("📤 Enviado:", data)
-
+        for sensor in sensors:
+            payload = build_payload(sensor)
+            emit_sensor_data(socket, payload)
+            print("📤 Enviado:", payload)
             time.sleep(sensor["interval"])
 
 if __name__ == "__main__":
